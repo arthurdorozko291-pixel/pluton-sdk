@@ -1,0 +1,32 @@
+# ==========================================
+# Мой первый скрипт на языке Pluton!
+# ==========================================
+
+echo("🔥 Привет из языка Pluton!")
+
+# Переменные и арифметика
+val author = "Artur"
+mut version = 0.1
+echo("Создатель языка:", author)
+echo("Версия:", version)
+
+# Работа с нативными 2D векторами
+val start_pos = (10, 20)
+val velocity  = (5, -2)
+val new_pos   = start_pos + velocity
+echo("Начальная позиция:", start_pos)
+echo("Скорость:", velocity)
+echo("Новая позиция:", new_pos)
+
+# Проверка прямого доступа к NVIDIA GPU
+val is_gpu = hardware.is_available()
+when (is_gpu) {
+    val dev = hardware.gpu(0)
+    echo("🚀 Найдена видеокарта:", dev.name)
+    echo("💾 Доступно VRAM:", dev.vram, "MB")
+} otherwise {
+    echo("GPU не обнаружен.")
+}
+
+echo("==========================================")
+echo("Файл main.pluton успешно выполнен!")
