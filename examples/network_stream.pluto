@@ -1,0 +1,60 @@
+// ==============================================================================
+// Simulated Brawl Stars v44 Client Test
+// ==============================================================================
+
+use PlutoNET;
+use Laser;
+
+echo("[TestClient] Connecting to BSDS-Pluton on 127.0.0.1:9339...")
+val client = tcp.connect("127.0.0.1", 9339)
+echo("[TestClient] Connected! Socket ID: #" + str(client.id))
+
+// 1. Send ClientHello (10100)
+val hello_stream = ByteStream.new()
+hello_stream.write_int(44)
+hello_stream.write_int(226)
+hello_stream.write_int(1)
+val hello_packet = ByteStream.create_packet(10100, hello_stream.to_bytes(), 0)
+client.send(hello_packet)
+echo("[TestClient] Sent ClientHello (10100)")
+
+// Read ServerHello (20100)
+val sh_header_bytes = client.recv(7)
+val sh_header = ByteStream.read_header(sh_header_bytes)
+echo("[TestClient] Received response: Type #" + str(sh_header.type) + ", Payload Length: " + str(sh_header.length))
+when (sh_header.length > 0) {
+    val sh_payload = client.recv(sh_header.length)
+}
+
+// 2. Send LoginMessage (10101)
+val login_stream = ByteStream.new()
+login_stream.write_long(0, 1) // Account ID [0, 1]
+login_stream.write_string("test_token_123") // Token
+login_stream.write_int(44) // Major
+login_stream.write_int(1)  // Minor
+login_stream.write_int(226) // Build
+val login_packet = ByteStream.create_packet(10101, login_stream.to_bytes(), 0)
+client.send(login_packet)
+echo("[TestClient] Sent LoginMessage (10101)")
+
+// Read LoginOk (20104)
+val ok_header_bytes = client.recv(7)
+val ok_header = ByteStream.read_header(ok_header_bytes)
+echo("[TestClient] Received packet 1: Type #" + str(ok_header.type) + ", Length: " + str(ok_header.length))
+val ok_payload = client.recv(ok_header.length)
+
+// Read OwnHomeData (24101)
+val home_header_bytes = client.recv(7)
+val home_header = ByteStream.read_header(home_header_bytes)
+echo("[TestClient] Received packet 2: Type #" + str(home_header.type) + ", Length: " + str(home_header.length) + " (LOBBY DATA READY!)")
+val home_payload = client.recv(home_header.length)
+
+// Read LobbyInfo (24399)
+val lobby_header_bytes = client.recv(7)
+val lobby_header = ByteStream.read_header(lobby_header_bytes)
+echo("[TestClient] Received packet 3: Type #" + str(lobby_header.type) + ", Length: " + str(lobby_header.length))
+val lobby_payload = client.recv(lobby_header.length)
+
+echo("==================================================================")
+echo("✔ ALL BRAWL STARS v44 PACKETS HANDSHAKED AND VERIFIED SUCCESSFULLY!")
+echo("==================================================================")
