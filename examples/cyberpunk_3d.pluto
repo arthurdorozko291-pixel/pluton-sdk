@@ -1,0 +1,78 @@
+// ==============================================================================
+// 🧊 PLUTONIUM 3D ENGINE SHOWCASE — 60 FPS Cyberpunk 3D Scene
+// Язык: Pluton 0.3.0
+// ==============================================================================
+
+use Plutonium;
+use Plutonium3D;
+
+val WIDTH = 900;
+val HEIGHT = 650;
+
+Plutonium.init(WIDTH, HEIGHT, "Pluton 3D Engine — 60 FPS Cyberpunk Realtime");
+
+mut rot_x = 15.0;
+mut rot_y = 0.0;
+mut cam_dist = 8.0;
+mut cam_angle = 0.0;
+
+echo("🧊 3D Движок Plutonium3D успешно инициализирован!");
+echo("🎮 Управление: A/D — вращение камеры, W/S — приближение/отдаление.");
+
+loop (Plutonium.is_open()) {
+    // 1. Очистка экрана глубоким ночным кибер-цветом
+    Plutonium.clear("#080B12");
+
+    // 2. Управление камерой
+    if (Plutonium.key_down("A") || Plutonium.key_down("Left")) {
+        cam_angle = cam_angle - 0.04;
+    }
+    if (Plutonium.key_down("D") || Plutonium.key_down("Right")) {
+        cam_angle = cam_angle + 0.04;
+    }
+    if (Plutonium.key_down("W") || Plutonium.key_down("Up")) {
+        cam_dist = Math.max(4.0, cam_dist - 0.15);
+    }
+    if (Plutonium.key_down("S") || Plutonium.key_down("Down")) {
+        cam_dist = Math.min(18.0, cam_dist + 0.15);
+    }
+
+    // 3. Авто-вращение объектов
+    rot_x = rot_x + 1.2;
+    rot_y = rot_y + 1.8;
+
+    // 4. Позиция камеры в 3D пространстве
+    val cam_x = Math.sin(cam_angle) * cam_dist;
+    val cam_z = -Math.cos(cam_angle) * cam_dist;
+    val cam_y = 3.2;
+    Plutonium3D.set_camera(cam_x, cam_y, cam_z, 0, 0, 0, 65.0);
+
+    // 5. Источник света (мягкое динамическое 3D затенение)
+    Plutonium3D.set_light(0.5, 1.0, -0.6);
+
+    // 6. 3D Сетка пола (Cyberpunk Neon Grid)
+    Plutonium3D.draw_grid_3d(32.0, 2.0, "#1A263D");
+
+    // 7. Центральный 3D Куб со светотенью и белым неоновым каркасом
+    Plutonium3D.draw_cube(0, 0, 0, 2.4, "#00E5FF", rot_x, rot_y, 0, true, "#FFFFFF");
+
+    // 8. Летающая рубиновая 3D пирамида
+    Plutonium3D.draw_pyramid(-4.0, 1.2, 0, 1.8, "#FF3366", -rot_y, rot_x, 0, true);
+
+    // 9. Летающий изумрудный 3D куб
+    Plutonium3D.draw_cube(4.0, 1.2, 0, 1.6, "#00FF88", rot_y * 1.5, rot_x, 0, true, "#00FF88");
+
+    // 10. 2D HUD (Поверх 3D сцены!)
+    Plutonium.draw_rect(20, 20, 320, 110, "#EE0E131F", true);
+    Plutonium.draw_round_rect(20, 20, 320, 110, 10, "#00E5FF", false);
+
+    Plutonium.draw_text("⚡ Plutonium 3D Engine", 35, 32, 14, "#00E5FF");
+    Plutonium.draw_text("Камера: W/A/S/D или Стрелки", 35, 58, 11, "#94A3B8");
+    Plutonium.draw_text("3D Объекты: 3 (Кубы + Пирамиды)", 35, 78, 11, "#94A3B8");
+    Plutonium.draw_text("FPS: " + str(int(Plutonium.get_fps())), 35, 98, 12, "#00FF88");
+
+    // 11. Flip 60 FPS
+    Plutonium.update(60);
+}
+
+Plutonium.close();
